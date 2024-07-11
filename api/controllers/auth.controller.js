@@ -1,5 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import "dotenv/config";
 
 export const signupController = async (req, res, next) => {
   try {
@@ -24,6 +26,48 @@ export const signupController = async (req, res, next) => {
       message: `New user created successfully`,
       user: username,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// sign in
+
+export const signinController = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const validUser = await User.findOne({ email });
+    if (!validUser) {
+      res.status(400).json({
+        success: false,
+        message: "User does not exists!",
+      });
+    }
+    const validPassword = await bcrypt.compare(password, validUser.password);
+    if (!validPassword) {
+      res.status(400).json({
+        success: false,
+        message: "Password is incorrect",
+      });
+    }
+
+    const token = jwt.sign({ id: validPassword._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    const { password: hashedPassword, ...rest } = validUser._doc;
+
+    const expiryDate = new Date(Date.now() + 3600000);
+
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+        expiryDate: expiryDate,
+      })
+      .status(200)
+      .json({
+        rest,
+        success: true,
+      });
   } catch (error) {
     next(error);
   }

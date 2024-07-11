@@ -1,7 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 
-export const signupController = async (req, res) => {
+export const signupController = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
     const emailExists = await User.findOne({ email });
@@ -24,10 +24,7 @@ export const signupController = async (req, res) => {
       message: `New user created successfully`,
       user: username,
     });
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };

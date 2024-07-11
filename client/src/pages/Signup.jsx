@@ -36,6 +36,7 @@ const Signup = () => {
       toast.success(data.message);
       setLoading(false);
       setError(false);
+      navigate("/sign-in");
     } catch (error) {
       setLoading(false);
       setError(true);

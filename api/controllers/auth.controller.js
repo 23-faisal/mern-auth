@@ -36,39 +36,47 @@ export const signupController = async (req, res, next) => {
 export const signinController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+
+    // Check if user exists
     const validUser = await User.findOne({ email });
     if (!validUser) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: "User does not exists!",
+        message: "User does not exist!",
       });
     }
+
+    // Check if password is correct
     const validPassword = await bcrypt.compare(password, validUser.password);
     if (!validPassword) {
-      res.status(400).json({
+      return res.status(400).json({
         success: false,
         message: "Password is incorrect",
       });
     }
 
-    const token = jwt.sign({ id: validPassword._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    // Generate JWT token
+    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+
+    // Remove hashedPassword from user object before sending in response
     const { password: hashedPassword, ...rest } = validUser._doc;
 
-    const expiryDate = new Date(Date.now() + 3600000);
+    // Set cookie expiration date
+    const expiryDate = new Date(Date.now() + 3600000); // 1 hour from now
 
+    // Set cookie with token
     res
       .cookie("access_token", token, {
         httpOnly: true,
-        expiryDate: expiryDate,
+        expires: expiryDate,
+        secure: true,
       })
       .status(200)
       .json({
-        rest,
         success: true,
+        user: rest,
       });
   } catch (error) {
-    next(error);
+    next(error); 
   }
 };

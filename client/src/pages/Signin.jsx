@@ -1,47 +1,46 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  SignInStart,
+  SignInSuccess,
+  SignInFailure,
+} from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const Signin = () => {
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   //
   const HandleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
 
   //
   const HandleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      dispatch(SignInStart());
       const response = await fetch("http://localhost:3001/api/auth/sign-in", {
         method: "POST",
         body: JSON.stringify(formData),
         headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
-      console.log(data);
-      if (!response.ok) {
-        toast.error(data.error);
-        loading(false);
-        return;
-      }
+
       if (data.success === false) {
-        toast.error(data.message);
-        loading(false);
+        dispatch(SignInFailure(data));
+        toast.error(error);
         return;
       }
+      dispatch(SignInSuccess(data));
       toast.success("User logged In successfully");
-      setLoading(false);
-      setError(false);
       navigate("/");
     } catch (error) {
-      setLoading(false);
-      setError(true);
+      dispatch(SignInFailure(error));
       toast.error(error);
     }
   };

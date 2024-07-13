@@ -7,6 +7,7 @@ import {
   SignInFailure,
 } from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
+import GoogleOAuth from "../components/GoogleOAuth";
 
 const Signin = () => {
   const [formData, setFormData] = useState({});
@@ -37,7 +38,7 @@ const Signin = () => {
         return;
       }
       dispatch(SignInSuccess(data));
-     
+
       toast.success(`${data.user.username} logged in successfully!!!`);
       navigate("/");
     } catch (error) {
@@ -76,6 +77,7 @@ const Signin = () => {
           >
             {loading ? "Loading" : "Sing In"}
           </button>
+          <GoogleOAuth />
         </form>
         <div className="my-4 flex items-center gap-2">
           <span>Don&#39;t have an account?</span>

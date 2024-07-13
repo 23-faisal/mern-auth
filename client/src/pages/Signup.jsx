@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import GoogleOAuth from "../components/GoogleOAuth";
 
 const Signup = () => {
   const [formData, setFormData] = useState({});
@@ -24,7 +25,7 @@ const Signup = () => {
         headers: { "Content-Type": "application/json" },
       });
       const data = await response.json();
-      if (response.ok) {
+      if (!response.ok) {
         toast.error(data.error);
         return;
       }
@@ -82,6 +83,7 @@ const Signup = () => {
           >
             {loading ? "Loading" : "Sing Up"}
           </button>
+          <GoogleOAuth />
         </form>
         <div className="my-4 flex items-center gap-2">
           <span>Already have an account?</span>

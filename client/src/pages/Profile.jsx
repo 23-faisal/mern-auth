@@ -15,7 +15,6 @@ const Profile = () => {
   const [imagePercentage, setImagePercentage] = useState(0);
   const [imageError, setImageError] = useState(false);
   const [formData, setFormData] = useState({});
-  console.log(formData);
 
   useEffect(() => {
     if (image) {
@@ -65,8 +64,8 @@ const Profile = () => {
           <img
             onClick={() => fileRef.current.click()}
             className="h-24 w-24 object-cover mx-auto rounded-full cursor-pointer"
-            src={currentUser.user.profilePhoto}
-            alt={currentUser.user.username}
+            src={formData.profilePhoto || currentUser.user.profilePhoto}
+            alt={formData.profilePhoto || currentUser.user.username}
           />
           <p>
             {imageError ? (
